@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        MySearch | Search Beyond Limits
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+    <style>
+
+        /* =========================
+           SEARCH AREA
+        ========================== */
+
+        .search-box {
+            position: relative;
+        }
+
+
+        /* =========================
+           SEARCH FILTERS
+        ========================== */
+
+        .search-filters {
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            gap: 10px;
+
+            margin-top: 18px;
+
+            flex-wrap: wrap;
+        }
+
+
+        .filter-btn {
+
+            border: 1px solid var(--border);
+
+            background: var(--surface);
+
+            color: var(--muted);
+
+            padding: 9px 16px;
+
+            border-radius: 12px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition:
+                all 0.2s ease;
+        }
+
+
+        .filter-btn:hover {
+
+            color: var(--text);
+
+            background: var(--surface-light);
+
+            transform: translateY(-2px);
+        }
+
+
+        .filter-btn.active {
+
+            color: var(--text);
+
+            background: var(--surface-light);
+
+            border-color: var(--primary);
+
+            box-shadow:
+                0 0 18px
+                rgba(99, 102, 241, 0.18);
+        }
+
+
+        /* =========================
+           SUGGESTIONS
+        ========================== */
+
+        .search-suggestions {
+
+            position: absolute;
+
+            top: calc(100% + 6px);
+
+            left: 0;
+
+            right: 0;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+
+            border-radius: 14px;
+
+            overflow: hidden;
+
+            z-index: 1000;
+
+            display: none;
+
+            box-shadow:
+                0 18px 45px
+                rgba(0, 0, 0, 0.35);
+        }
+
+
+        .suggestion-item {
+
+            width: 100%;
+
+            padding: 13px 18px;
+
+            color: var(--text);
+
+            background: transparent;
+
+            border: none;
+
+            text-align: left;
+
+            cursor: pointer;
+
+            font-size: 14px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            transition:
+                background 0.2s ease,
+                padding-left 0.2s ease;
+        }
+
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+
+        .suggestion-item:hover {
+
+            background:
+                var(--surface-light);
+
+            padding-left: 24px;
+        }
+
+
+        /* =========================
+           RECENT SEARCHES
+        ========================== */
+
+        .recent-searches {
+
+            display: none;
+
+            margin-top: 14px;
+
+            text-align: left;
+        }
+
+
+        .recent-title {
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+            font-weight: 600;
+
+            margin-bottom: 8px;
+
+            letter-spacing: 0.5px;
+        }
+
+
+        .recent-list {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+        }
+
+
+        .recent-item {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding: 8px 12px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+            color: var(--text);
+
+            background: var(--surface);
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease;
+        }
+
+
+        .recent-item:hover {
+
+            background:
+                var(--surface-light);
+
+            transform:
+                translateY(-2px);
+        }
+
+
+        /* =========================
+           RESULT SOURCE
+        ========================== */
+
+        .result-source {
+
+            display: inline-block;
+
+            margin-top: 10px;
+
+            padding: 5px 9px;
+
+            border-radius: 8px;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            color: var(--muted);
+
+            background:
+                var(--surface-light);
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <header class="navbar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                M
+            </div>
+
+            <span>
+                MySearch
+            </span>
+
+        </div>
+
+
+        <div class="nav-right">
+
+            <a href="/">
+                Home
+            </a>
+
+
+            <button
+                class="theme-btn"
+                onclick="toggleTheme()"
+                id="themeButton"
+                type="button"
+            >
+                ☾
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =========================
+         MAIN
+    ========================== -->
+
+    <main class="main-container">
+
+
+        <!-- =========================
+             HERO
+        ========================== -->
+
+        <section class="hero">
+
+
+            <div class="badge">
+
+                <span class="status-dot"></span>
+
+                AI Powered Web Search
+
+            </div>
+
+
+            <h1>
+
+                Search beyond
+
+                <span>
+                    limits.
+                </span>
+
+            </h1>
+
+
+            <p class="subtitle">
+
+                Discover the web faster with
+
+                <strong>
+                    MySearch
+                </strong>
+
+                —
+
+                a smarter way to find information.
+
+            </p>
+
+
+
+            <!-- =========================
+                 SEARCH FORM
+            ========================== -->
+
+            <form
+                action="/search"
+                method="GET"
+                class="search-box"
+                id="searchForm"
+            >
+
+
+                <div class="search-icon">
+                    🔍
+                </div>
+
+
+                <input
+                    type="text"
+                    name="q"
+                    id="searchInput"
+                    value="{{ query or '' }}"
+                    placeholder="Search anything..."
+                    autocomplete="off"
+                    required
+                >
+
+
+                <button
+                    type="submit"
+                >
+
+                    Search
+
+                    <span>
+                        →
+                    </span>
+
+                </button>
+
+
+
+                <!-- SUGGESTIONS -->
+
+                <div
+                    id="searchSuggestions"
+                    class="search-suggestions"
+                ></div>
+
+
+            </form>
+
+
+
+            <!-- =========================
+                 SEARCH FILTERS
+            ========================== -->
+
+            <div class="search-filters">
+
+                <button
+                    type="button"
+                    class="filter-btn active"
+                    data-filter="all"
+                >
+                    ⚡ All
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-btn"
+                    data-filter="web"
+                >
+                    🌐 Web
+                </button>
+
+
+                <button
+                    type="button"
+                    class="filter-btn"
+                    data-filter="local"
+                >
+                    🧠 MySearch Index
+                </button>
+
+            </div>
+
+
+
+            <!-- RECENT SEARCHES -->
+
+            <div
+                id="recentSearches"
+                class="recent-searches"
+            ></div>
+
+
+
+            <!-- SEARCH TYPES -->
+
+            <div class="search-types">
+
+                <span class="active">
+                    🌐 Web
+                </span>
+
+                <span>
+                    📰 News
+                </span>
+
+                <span>
+                    🖼 Images
+                </span>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =========================
+             RESULTS
+        ========================== -->
+
+        {% if query %}
+
+        <section class="results-section">
+
+
+            <div class="results-header">
+
+                <div>
+
+                    <p class="results-label">
+                        SEARCH RESULTS
+                    </p>
+
+
+                    <h2>
+
+                        Results for
+
+                        <span>
+                            "{{ query }}"
+                        </span>
+
+                    </h2>
+
+                </div>
+
+
+                <div class="result-count">
+
+                    {{ results|length }}
+
+                    {% if results|length == 1 %}
+
+                        result
+
+                    {% else %}
+
+                        results
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =========================
+                 RESULT LIST
+            ========================== -->
+
+            {% if results %}
+
+            <div class="results-list">
+
+
+                {% for result in results %}
+
+                <article
+                    class="result-card"
+                    data-source="{{ result.source }}"
+                >
+
+
+                    <div class="result-top">
+
+
+                        <div class="result-favicon">
+
+                            {% if result.title %}
+
+                                {{ result.title[0]|upper }}
+
+                            {% else %}
+
+                                M
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <div class="result-url">
+
+                            {{ result.url }}
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <h3>
+
+                        <a
+                            href="{{ result.url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+
+                            {{ result.title }}
+
+                        </a>
+
+                    </h3>
+
+
+
+                    <p>
+
+                        {{ result.description[:350] }}
+
+                        {% if result.description|length > 350 %}
+
+                            ...
+
+                        {% endif %}
+
+                    </p>
+
+
+
+                    {% if result.source %}
+
+                    <div class="result-source">
+
+                        {{ result.source }}
+
+                    </div>
+
+                    {% endif %}
+
+
+
+                    <a
+                        href="{{ result.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="open-result"
+                    >
+
+                        Open result →
+
+                    </a>
+
+
+                </article>
+
+                {% endfor %}
+
+
+            </div>
+
+
+            {% else %}
+
+
+            <!-- NO RESULTS -->
+
+            <div class="no-results">
+
+                <div class="no-results-icon">
+                    🔎
+                </div>
+
+
+                <h3>
+                    No results found
+                </h3>
+
+
+                <p>
+                    Try using different keywords.
+                </p>
+
+            </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+        {% endif %}
+
+
+    </main>
+
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer>
+
+        <div>
+            © 2026 MySearch Engine
+        </div>
+
+
+        <div>
+            Built for smarter searching.
+        </div>
+
+    </footer>
+
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
+    <script>
+
+
+        /* =========================
+           THEME
+        ========================== */
+
+        function toggleTheme() {
+
+            document.body.classList.toggle(
+                "light-mode"
+            );
+
+
+            const button =
+                document.getElementById(
+                    "themeButton"
+                );
+
+
+            if (
+                document.body.classList.contains(
+                    "light-mode"
+                )
+            ) {
+
+                button.innerHTML = "☀";
+
+            } else {
+
+                button.innerHTML = "☾";
+
+            }
+
+        }
+
+
+
+        /* =========================
+           ELEMENTS
+        ========================== */
+
+        const searchInput =
+            document.getElementById(
+                "searchInput"
+            );
+
+
+        const suggestionsBox =
+            document.getElementById(
+                "searchSuggestions"
+            );
+
+
+        const recentBox =
+            document.getElementById(
+                "recentSearches"
+            );
+
+
+        const searchForm =
+            document.getElementById(
+                "searchForm"
+            );
+
+
+
+        /* =========================
+           FILTERS
+        ========================== */
+
+        const filterButtons =
+            document.querySelectorAll(
+                ".filter-btn"
+            );
+
+
+        let selectedFilter =
+            "all";
+
+
+        filterButtons.forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        filterButtons.forEach(
+                            function (btn) {
+
+                                btn.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                        this.classList.add(
+                            "active"
+                        );
+
+
+                        selectedFilter =
+                            this.dataset.filter;
+
+
+                        filterResults(
+                            selectedFilter
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+
+        function filterResults(
+            filter
+        ) {
+
+            const cards =
+                document.querySelectorAll(
+                    ".result-card"
+                );
+
+
+            cards.forEach(
+                function (card) {
+
+                    const source =
+                        card.dataset.source
+                            .toLowerCase();
+
+
+                    if (filter === "all") {
+
+                        card.style.display =
+                            "";
+
+                    }
+
+                    else if (
+                        filter === "web"
+                    ) {
+
+                        if (
+                            source ===
+                            "web search"
+                        ) {
+
+                            card.style.display =
+                                "";
+
+                        } else {
+
+                            card.style.display =
+                                "none";
+
+                        }
+
+                    }
+
+                    else if (
+                        filter === "local"
+                    ) {
+
+                        if (
+                            source ===
+                            "mysearch index"
+                        ) {
+
+                            card.style.display =
+                                "";
+
+                        } else {
+
+                            card.style.display =
+                                "none";
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+
+        /* =========================
+           SUGGESTIONS
+        ========================== */
+
+        const suggestions = [
+
+            "python programming",
+
+            "web development",
+
+            "artificial intelligence",
+
+            "machine learning",
+
+            "cyber security",
+
+            "data structures",
+
+            "flask python",
+
+            "javascript",
+
+            "computer science",
+
+            "software development"
+
+        ];
+
+
+        searchInput.addEventListener(
+            "input",
+            function () {
+
+
+                const value =
+                    this.value
+                    .toLowerCase()
+                    .trim();
+
+
+                suggestionsBox.innerHTML =
+                    "";
+
+
+                if (!value) {
+
+                    suggestionsBox.style.display =
+                        "none";
+
+                    return;
+
+                }
+
+
+                const matches =
+                    suggestions.filter(
+                        function (item) {
+
+                            return item
+                                .toLowerCase()
+                                .includes(value);
+
+                        }
+                    );
+
+
+                if (!matches.length) {
+
+                    suggestionsBox.style.display =
+                        "none";
+
+                    return;
+
+                }
+
+
+                matches
+                    .slice(0, 5)
+                    .forEach(
+                        function (item) {
+
+
+                            const button =
+                                document.createElement(
+                                    "button"
+                                );
+
+
+                            button.type =
+                                "button";
+
+
+                            button.className =
+                                "suggestion-item";
+
+
+                            button.innerHTML =
+                                "🔎 " + item;
+
+
+                            button.addEventListener(
+                                "click",
+                                function () {
+
+                                    searchInput.value =
+                                        item;
+
+                                    suggestionsBox.style.display =
+                                        "none";
+
+                                    searchForm.submit();
+
+                                }
+                            );
+
+
+                            suggestionsBox.appendChild(
+                                button
+                            );
+
+                        }
+                    );
+
+
+                suggestionsBox.style.display =
+                    "block";
+
+
+            }
+        );
+
+
+
+        /* =========================
+           RECENT SEARCH STORAGE
+        ========================== */
+
+        function getRecentSearches() {
+
+            try {
+
+                return JSON.parse(
+                    localStorage.getItem(
+                        "mysearch_recent"
+                    ) || "[]"
+                );
+
+            } catch {
+
+                return [];
+
+            }
+
+        }
+
+
+
+        function saveRecentSearch(
+            query
+        ) {
+
+            query =
+                query.trim();
+
+
+            if (!query) {
+                return;
+            }
+
+
+            let recent =
+                getRecentSearches();
+
+
+            recent =
+                recent.filter(
+                    function (item) {
+
+                        return item.toLowerCase()
+                            !== query.toLowerCase();
+
+                    }
+                );
+
+
+            recent.unshift(
+                query
+            );
+
+
+            recent =
+                recent.slice(
+                    0,
+                    5
+                );
+
+
+            localStorage.setItem(
+                "mysearch_recent",
+                JSON.stringify(recent)
+            );
+
+        }
+
+
+
+        /* =========================
+           SHOW RECENT SEARCHES
+        ========================== */
+
+        function showRecentSearches() {
+
+            const recent =
+                getRecentSearches();
+
+
+            recentBox.innerHTML =
+                "";
+
+
+            if (!recent.length) {
+
+                recentBox.style.display =
+                    "none";
+
+                return;
+
+            }
+
+
+            const title =
+                document.createElement(
+                    "div"
+                );
+
+
+            title.className =
+                "recent-title";
+
+
+            title.textContent =
+                "Recent Searches";
+
+
+            recentBox.appendChild(
+                title
+            );
+
+
+            const list =
+                document.createElement(
+                    "div"
+                );
+
+
+            list.className =
+                "recent-list";
+
+
+            recent.forEach(
+                function (item) {
+
+
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    button.type =
+                        "button";
+
+
+                    button.className =
+                        "recent-item";
+
+
+                    button.innerHTML =
+                        "🕘 " + item;
+
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            searchInput.value =
+                                item;
+
+                            searchForm.submit();
+
+                        }
+                    );
+
+
+                    list.appendChild(
+                        button
+                    );
+
+
+                }
+            );
+
+
+            recentBox.appendChild(
+                list
+            );
+
+
+            recentBox.style.display =
+                "block";
+
+        }
+
+
+
+        /* =========================
+           SAVE SEARCH
+        ========================== */
+
+        searchForm.addEventListener(
+            "submit",
+            function () {
+
+                saveRecentSearch(
+                    searchInput.value
+                );
+
+            }
+        );
+
+
+
+        /* =========================
+           SEARCH INPUT FOCUS
+        ========================== */
+
+        searchInput.addEventListener(
+            "focus",
+            function () {
+
+                showRecentSearches();
+
+            }
+        );
+
+
+
+        /* =========================
+           CLOSE SUGGESTIONS
+        ========================== */
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+
+                if (
+
+                    !searchInput.contains(
+                        event.target
+                    )
+
+                    &&
+
+                    !suggestionsBox.contains(
+                        event.target
+                    )
+
+                ) {
+
+                    suggestionsBox.style.display =
+                        "none";
+
+                }
+
+            }
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>
+
